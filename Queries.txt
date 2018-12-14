@@ -1,0 +1,46 @@
+#Query1: To find URLs removed domainwise
+select d.Domain,sum(d."URLs Removed")
+from domainData d ,requestData r
+where d."Request ID"=r."Request ID"
+and d.[From Abuser]='False'
+group by d.Domain
+order by d.[URLs removed] DESC;
+
+#Query2: To find URLs on which no action was taken domainwise
+select d.Domain,sum(d."URLs for which we took no action")
+from domainData d ,requestData r
+where d."Request ID"=r."Request ID"
+and d.[From Abuser]='False'
+group by d.Domain
+order by d.[URLs for which we took no action] DESC;
+
+
+#Query3: To find URLs that were not found in Google's search index domainwise
+select d.Domain,sum(d."URLs that were not in Google's search index")
+from domainData d ,requestData r
+where d."Request ID"=r."Request ID"
+and d.[From Abuser]='False'
+group by d.Domain
+order by d.[URLs that were not in Google's search index] DESC;
+
+
+#Query4: Find percentage of URLs removed to Total Number of requests reported domainwise
+SELECT d.Domain,
+       (SUM(d.[URLs removed])) AS URLsremoved,
+       (sum(d.[URLs removed]+d.[URLs that were not in Google's search index]+d.[URLs for which we took no action]+d.[URLs pending review]) as allurls,
+       round(urlsremoved/cast((sum(d.[URLs removed]+d.[URLs that were not in Google's search index])+d.[URLs for which we took no action]+d.[URLs pending review])as float),2) * 100 as percent
+FROM domainData d
+GROUP BY d.Domain
+ORDER BY URLsremoved DESC;
+
+
+
+#Query5: Find percentage of URLs for which no action taken to Total Number of requests reported domainwise
+SELECT d.Domain,
+       (SUM(d.[URLs for which we took no action])) AS noaction,
+       (sum(d.[URLs removed]+d.[URLs that were not in Google's search index]+d.[URLs for which we took no action]+d.[URLs pending review]) as allurls,
+       round(urlsremoved/cast((sum(d.[URLs removed]+d.[URLs that were not in Google's search index])+d.[URLs for which we took no action]+d.[URLs pending review])as float),2) * 100 as percent
+FROM domainData d
+GROUP BY d.Domain
+ORDER BY noaction DESC;
+
